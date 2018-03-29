@@ -2,13 +2,22 @@ package main
 
 import (
 	"sync"
-	"project/client"
+	"chat-terminal/client"
+	"chat-terminal/settings"
+	"chat-terminal/client/nodes_client"
 )
 
 func main() {
+	settings := settings.NewSettings()
+	settings.LoadSettings()
+	network := nodes_client.NewNetwork(settings)
+	screen := nodes_client.NewScreen()
+	client := client.NewClient(network, screen)
 	var wg sync.WaitGroup
-	s := client.LoadSettings()
 	wg.Add(1)
-	go client.HandleConnection(s, wg)
+	go func() {
+		defer wg.Done()
+		client.HandleConnection()
+	}()
 	wg.Wait()
 }
